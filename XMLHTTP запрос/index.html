@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <div class="responseText">
+        
+    </div>
+    <div class="statusText">
+
+    </div>
+    <div class="status"></div>
+
+    <script>
+        var data = new FormData();
+        data.append('email', 'admin@admin.ru')
+        data.append('password', 'Qa1')
+        data.append('first_name', 'name')
+        data.append('last_name', 'last_name')
+        
+        var request = new XMLHttpRequest();
+        var url = `http://web-app.api-web-tech.local/registration`;
+        request.open('POST', url);
+        request.send(data);
+        request.onreadystatechange = (e) => {
+            if(request.readyState == 4) {
+                document.querySelector('.responseText').textContent = request.responseText
+                document.querySelector('.statusText').textContent = request.statusText
+                document.querySelector('.status').textContent = request.status
+            }
+        }
+    </script>
+
+</body>
+</html>
