@@ -103,7 +103,7 @@ body {
 /* ЛИЧНЫЕ ФАЙЛЫ НАЧАЛО */
 
 .profile {
-    width: 100%;
+    width: 90%;
     padding: 20px;
 
 }
@@ -149,7 +149,6 @@ body {
     background-color: #fff;
     border-radius: 15px;
     text-align: center;
-    display: block;
 }
 
 .uploaded-files table {
@@ -199,8 +198,8 @@ body {
     border-radius: 15px;
 }
 .edit-block input {
-    margin: 20px;
-    width: 300px;
+    margin: auto;
+    width: 250px;
     background-color: antiquewhite;
     border: 0;
     border-radius: 5px;
@@ -248,4 +247,8 @@ body {
     height: 30px;
     background-color: antiquewhite;
     border-radius: 7px;
+    border: 0;
+}
+.del-block button:hover {
+    background-color: rgba(173, 120, 51, 0.726);
 }

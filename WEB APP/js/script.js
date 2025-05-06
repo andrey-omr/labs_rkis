@@ -42,25 +42,25 @@ function _elem(selector) {
     return document.querySelector(selector)
 }
 
-_get({url: 'modules/authorization.html'}, function(response) {
+_get({ url: 'modules/authorization.html' }, function (response) {
     CONTENT.innerHTML = response
 
     onloadAuth()
 })
 
 function onloadAuth() {
-    _elem('.authorize').addEventListener('click',function () {
+    _elem('.authorize').addEventListener('click', function () {
         let request_data = new FormData();
         request_data.append('email', _elem('input[name="email"]').value);
         request_data.append('password', _elem('input[name="password"]').value);
 
-        _post({url: `${HOST}/authorization`, data: request_data}, function(response) {
+        _post({url: `${HOST}/authorization`, data: request_data }, function (response) {
             response = JSON.parse(response);
             console.log(response);
 
             if (response.success) {
                 TOKEN = response.token;
-                _get({url: '/modules/profile.html'}, function (response) {
+                _get({ url: '/modules/profile.html' }, function (response) {
                     CONTENT.innerHTML = response;
                     onLoadProf()
                 });
@@ -71,27 +71,24 @@ function onloadAuth() {
         });
     });
     _elem('.go-register').addEventListener('click', function () {
-        _get({url: '/modules/registration.html'}, function(response) {
+        _get({ url: '/modules/registration.html' }, function (response) {
             CONTENT.innerHTML = response;
             onLoadReg()
         });
     });
 }
- 
-function onLoadProf() {
-    let onProfile = new FormData();
-    onProfile.append('token', TOKEN);
 
+function onLoadProf() {
     let disk_url = `${HOST}/disk/?token=${TOKEN}`;
 
-    _get({url: disk_url}, function(response) {
+    _get({ url: disk_url }, function (response) {
         response = JSON.parse(response);
         makeTableData(response);
-        // console.log(response);
+        console.log(response);
     });
     _elem('.btn-upload-file').addEventListener('click', function () {
         // console.log(TOKEN);
-        _get({url: 'modules/upload.html'}, function(response) {
+        _get({ url: 'modules/upload.html' }, function (response) {
             CONTENT.innerHTML = response;
 
             logoutUpload(), onLoadUpload()
@@ -114,7 +111,7 @@ function makeTableBtn(Text, onclick) {
     return cell
 }
 
-function makeTableLink (href) {
+function makeTableLink(href) {
     let cell = document.createElement('td');
     let link = document.createElement('a');
     link.textContent = href;
@@ -129,7 +126,7 @@ function deleteFile(file_id, callback) {
     let f_Data = new FormData();
     f_Data.append('token', TOKEN);
     f_Data.append('id_file', file_id)
-    _post({url: url, data: f_Data}, callback)
+    _post({ url: url, data: f_Data }, callback)
 }
 
 function makeTableData(data) {
@@ -142,21 +139,24 @@ function makeTableData(data) {
         row.append(makeTableCell(element.file_id));
         row.append(makeTableCell(element.name));
         row.append(makeTableLink('Ссылка'));
-        row.append(makeTableBtn('Удалить', function() {
-            deleteFile(element.file_id, function(response) {
-                // CONTENT.innerHTML = response
-                _get({url: 'modules/delete.html'}, function(response) {
+        row.append(makeTableBtn('Удалить', function () {
+            // deleteFile(element.file_id, function () {
+                _get({ url: 'modules/delete.html' }, function (response) {
                     document.querySelector('.modal-content').innerHTML = response
                     document.querySelector('.modal').style = "display: block;"
-                    onLoadEdit(element.file_id)
-                    CONTENT.innerHTML = response;             
-                    delFile()
+                    console.log("до");
+
+                    // onLoadEdit(element.file_id)
+                    console.log("после");
+
+                    // CONTENT.innerHTML = response;
+                    onDelFile(element.file_id)
                 })
-            })
-        })); 
-        row.append(makeTableBtn('Изменить', function() {
+            // })
+        }));
+        row.append(makeTableBtn('Изменить', function () {
             // EDITED_FILE_ID = element.file_id;
-            _get({url: 'modules/edit.html'}, function(response) {
+            _get({ url: 'modules/edit.html' }, function (response) {
                 // CONTENT.innerHTML = response
                 document.querySelector('.modal-content').innerHTML = response
                 _elem('input[name="edit"]').value = element.name
@@ -170,10 +170,27 @@ function makeTableData(data) {
     });
 }
 
-function delFile() {
-    _elem('.d_1').addEventListener('click', function() {
-        
+function onDelFile(file_id) {
+    console.log("onDelFile()")
+    let del_Data = new FormData();
+    del_Data.append('token', TOKEN);
+    del_Data.append('id_file', file_id)
+
+    _elem('.btn-confirm-delete').addEventListener('click', function () {
+        _post({ url: `${HOST}/delete`, data: del_Data }, function (response) {
+            _get({ url: 'modules/profile.html' }, function (response) {
+                CONTENT.innerHTML = response;
+                onLoadProf()
+            })
+        })
     })
+
+
+    _elem('.btn-cancel-delete').addEventListener('click', function () {
+        document.querySelector('.modal-content').innerHTML = ''
+        document.querySelector('.modal').style = "display: none;"
+    })
+
 }
 
 function editFile(file_id, new_name) {
@@ -181,10 +198,10 @@ function editFile(file_id, new_name) {
     e_Data.append('name', new_name);
     e_Data.append('token', TOKEN);
     e_Data.append('id_file', file_id)
-    _post({url: `${HOST}/edit`, data: e_Data}, function() {
-        EDITED_FILE_ID = -1;
-        _get({url: 'modules/profile.html'}, function(response) {
-            CONTENT.innerHTML = response;             
+    _post({ url: `${HOST}/edit`, data: e_Data }, function () {
+        // EDITED_FILE_ID = -1;
+        _get({ url: 'modules/profile.html' }, function (response) {
+            CONTENT.innerHTML = response;
             onLoadProf()
         })
     })
@@ -195,14 +212,14 @@ function editFile(file_id, new_name) {
 function onLoadEdit(id) {
     _elem('.e_btn').addEventListener('click', function () {
         // editFile(EDITED_FILE_ID ,_elem('input[name="edit"]').value)
-        editFile(id ,_elem('input[name="edit"]').value)
+        editFile(id, _elem('input[name="edit"]').value)
 
     })
 }
 
 function logoutUpload() {
-    _elem('.btn-to-disk').addEventListener('click', function() {
-        _get({url: '/modules/profile.html'}, function (response) {
+    _elem('.btn-to-disk').addEventListener('click', function () {
+        _get({ url: '/modules/profile.html' }, function (response) {
             // console.log(TOKEN)
             CONTENT.innerHTML = response;
             onLoadProf()
@@ -211,50 +228,38 @@ function logoutUpload() {
 }
 
 function onLoadUpload() {
-    makeTableUpload()
-    _elem('.upload-files').addEventListener('click', function() {
+    _elem('.upload-files').addEventListener('click', function () {
         let request_upload = new FormData();
-
         request_upload.append('token', TOKEN);
         request_upload.append('files', _elem('input[name="files"]').value);
 
-        _post({url: `${HOST}/upload`, data: request_upload}, function(response) {
-            response = JSON.parse(response);
+        _post({ url: `${HOST}/download`, data: request_upload }, function (response) {
+            // response = JSON.parse(response);
             console.log(response)
+
+            _get({url: 'modules/profile.html'}, function(response) {
+                CONTENT.innerHTML = response
+                onLoadProf()
+            })
         });
     });
 }
 
-function makeTableUpload(data) {
-    let table = _elem('tbody');
-
-    //Цикл по мaссиву data:
-    data.forEach(element => {
-        var row = document.createElement('tr');
-
-        row.append(makeTableCell(element.name));
-        row.append(makeTableCell('Успешно'));
-        row.append(makeTableBtn('Скачать'));
-
-        table.appendChild(row);
-    });
-}
-
 function onLoadReg() {
-    _elem('.register').addEventListener('click',function () {
+    _elem('.register').addEventListener('click', function () {
         let request_regist = new FormData();
         request_regist.append('first_name', _elem('input[name="first_name"]').value);
         request_regist.append('last_name', _elem('input[name="last_name"]').value);
         request_regist.append('email', _elem('input[name="email"]').value);
         request_regist.append('password', _elem('input[name="password"]').value);
 
-        _post({url: `${HOST}/registration`, data: request_regist}, function(response) {
+        _post({ url: `${HOST}/registration`, data: request_regist }, function (response) {
             response = JSON.parse(response);
             console.log(response);
-            
+
             if (response.success) {
                 TOKEN = response.token;
-                _get({url: '/modules/profile.html'}, function (response) {
+                _get({ url: '/modules/profile.html' }, function (response) {
                     CONTENT.innerHTML = response;
                     onLoadProf()
                 });
